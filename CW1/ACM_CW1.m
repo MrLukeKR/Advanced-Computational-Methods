@@ -32,7 +32,7 @@ fprintf('MATLAB Answer\t%f\n', matAns);
 % Question (b)
 ReStart = 5000;
 ReEnd   = 100000;
-ReStep  = 5000;
+ReStep  = 500;
 
 roughnessStart = 0;
 roughnessEnd = 0.008;
@@ -48,10 +48,10 @@ yInd = 1;
 for roughness = roughnessStart : roughnessStep : roughnessEnd
     xInd = 1;
     for Re = ReStart : ReStep : ReEnd
-        matfric = vpasolve(1/sqrt(f) == -2.0 * log((roughness / 3.7) + (2.51 / Re * sqrt(f))), f);
-        %myfric  = FrictionFactor(Re, roughness, indiam);
+        %fric = vpasolve(1/sqrt(f) == -2.0 * log((roughness / 3.7) + (2.51 / (Re * sqrt(f)))), f);
+        fric  = FrictionFactor(Re, roughness);
         %fprintf('My Fact: %f\tMATLAB: %f\n', myfric, matfric);
-        valuesToPlot(xInd, yInd) = matfric;
+        valuesToPlot(xInd, yInd) = fric;
         xInd = xInd + 1;
     end
     yInd = yInd + 1;

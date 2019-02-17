@@ -26,7 +26,7 @@ rhs = @(x) -2.0 .* log((roughness ./ 3.7) + (2.51 ./ (Re .* (sqrt(x)))));
 
 friction = @(f) lhs(f) - rhs(f) ;
 
-f = fzero(friction, 0.01);
+f = fzero(friction, 1E-2);
 
 end
 
