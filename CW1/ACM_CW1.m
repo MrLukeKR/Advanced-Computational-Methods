@@ -32,7 +32,7 @@ fprintf('MATLAB Answer\t%f\n', matAns);
 % Question (b)
 ReStart = 5000;
 ReEnd   = 100000;
-ReStep  = 500;
+ReStep  = 5000;
 
 roughnessStart = 0;
 roughnessEnd = 0.008;
@@ -58,12 +58,12 @@ for roughness = roughnessStart : roughnessStep : roughnessEnd
 end
 
 figure('name', 'Friction Factor vs. Reynolds Number');
-title('Friction Factor vs. Reynolds Number');
-xlabel('Reynolds Number (Re)'); 
-ylabel('Friction Factor (f)');
 
 roughnessLabels = roughnessStart : roughnessStep : roughnessEnd;
 leg = cellstr(num2str(roughnessLabels', 'Roughness = %.3f'));
 
 plot (ReStart : ReStep : ReEnd, valuesToPlot)
 legend(leg);
+title('Friction Factor vs. Reynolds Number');
+xlabel('Reynolds Number (Re)'); 
+ylabel('Friction Factor (f)');
