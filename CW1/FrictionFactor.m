@@ -15,9 +15,12 @@ function f = FrictionFactor(varargin)
 
 Re = varargin{1};
 
+% Overloaded function signature (allows for pre-calculated roughness or
+% Epsilon and Diameter to be entered and then calculated within this
+% function)
 if nargin == 3
     roughness = varargin{2} / varargin{3};
-else
+elseif nargin == 2
     roughness = varargin{2};
 end
 

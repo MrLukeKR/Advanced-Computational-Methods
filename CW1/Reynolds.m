@@ -11,7 +11,7 @@ function Re = Reynolds(volumetricFlowrate, innerDiameter, density, viscosity)
 % rho = Density of fluid
 % mu  = Viscosity of fluid
 
-A = (pi / 4) * innerDiameter^2;
+A = pi * (innerDiameter/2)^2;
 
 Re = (density * innerDiameter * volumetricFlowrate) / (viscosity * A);
 end
