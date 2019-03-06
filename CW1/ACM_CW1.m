@@ -1,32 +1,34 @@
 % Question (a)
 
-clear all;
+% Do not use clear all, it's inefficienct, just clear variables
+clearvars;
 clc;
 
 format long;
 syms f;
 
-barrelsPerDay = 2000;
+% --- ORIGINAL INPUT VALUES ---
+    barrelsPerDay = 2000;
+
+% -----------------------------
 
 % --- CONVERSIONS ---
-% 2000 bbl/day -> bbl/second (Oil Barrel)
-volFlowPerSecond = valuePerDayToSeconds(barrelsPerDay);
+%  2000 bbl/day -> bbl/second (Oil Barrel)
+    volFlowPerSecond = valuePerDayToSeconds(barrelsPerDay);
 
-% bbl/second -> gal/second (Oil Barrel to Gallon)
-gallonFlowPerSecond = barrelToGallon(volFlowPerSecond);
+%  bbl/second -> gal/second (Oil Barrel to Gallon)
+    gallonFlowPerSecond = barrelToGallon(volFlowPerSecond);
 
-% ----------------------------
-    
-% in -> m
-    indiam  = 4 * 0.0254;
+%  in -> m
+    indiam  = inchesToMeters(4);
 
-% g/cm3 -> kg/m3
+%  g/cm3 -> kg/m3
     dens    = 0.9 * 1000;
 
-% 8cp -> Pa.s (Centipoise to Pascal Second)
+%  8cp -> Pa.s (Centipoise to Pascal Second)
     visc    = 8 * 0.001;
+% -------------------
 
-% -----------------------------------------
 roughness = 0;
 
 Re = Reynolds(gallonFlowPerSecond, indiam, dens, visc);
@@ -74,37 +76,45 @@ title('Friction Factor vs. Reynolds Number');
 xlabel('Reynolds Number (Re)');
 ylabel('Friction Factor (f)');
 
-% Question (c)
+%----- Question (c) -----
+
+% steps: Number of divisions to make when using linspace (default: 100)
+steps = 100;
+
+% R: radius of pipe
+R = indiam / 2;
 
 % r: distance from center of pipe
-% R: radius of pipe
-% u_Max: maximum velocity at center of pipe
+r = linspace(0, R, steps);
+
+% theta: angle of volume
+theta = linspace(0, 2 * pi, steps);
+
 % d: diameter
 % u_Avg: average velocity (Q/A)
-
-% Given
-R = indiam / 2;
 A = pi * R^2;
-uAvg = gallonFlowPerSecond / A;
+u_Avg = gallonFlowPerSecond / A;
 
+% Multiple integration using TRAPZ
+% Based on MathWorks documentation from: 
+% https://uk.mathworks.com/help/matlab/ref/trapz.html
 
-r = 10;
-theta = 10;
+[RAD] = meshgrid(r, theta);
 
-func = @funcIDK;
+manualFunc = ((1 - (RAD./R).^2) .* RAD);
 
-integral2(func ,0,2 * pi, 0, R);
+integ1 = trapz(theta, trapz(r, manualFunc, 2));
 
-integ1 = trapz(func);
-integ2 = trapz(integ1);
+% u_Max: maximum velocity at center of pipe
+u_Max = (u_Avg * pi * R.^2) ./ integ1;
 
-function uMax = calculateUMax(uAvg, r, R)
-uMax =(uAvg * pi * R^2);
-end
+% u(r): 
+u_r = u_Max .* (1 - (r./R).^2);
+plot(r, u_r);
 
-function answer = funcIDK(r, R)
-answer = (1 - (r/R)^2);
-end
+% MATLAB built-in function for comparison
+builtInFunc = @(r, theta)((1 - (r./R).^2) .* r);
+inter2 = integral2(builtInFunc, 0, 2 * pi, 0, R);
 
 % --- CONVERSION FUNCTIONS ---
 function perSecond = valuePerDayToSeconds(perDayValue)
@@ -113,4 +123,8 @@ end
 
 function gallons = barrelToGallon(barrels)
     gallons = barrels * 42 * 3.785E-3;
+end
+
+function meters = inchesToMetres(inches)
+    meters = inches * 0.0254;
 end
