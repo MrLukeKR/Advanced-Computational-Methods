@@ -13,23 +13,26 @@ function f = FrictionFactor(varargin)
 % 0 = (1 / sqrt(f)) - (-2.0 * log(((epsilon/D) / 3.7) + (2.51 / Re * sqrt(f))))
 % 0 = (1 / sqrt(f)) + 2.0 * log(((epsilon/D) / 3.7) + (2.51 / Re * sqrt(f)))
 
-Re = varargin{1};
+%   Get the first argument from the input array as the "Reynolds Number"
+    Re = varargin{1};
 
-% Overloaded function signature (allows for pre-calculated roughness or
-% Epsilon and Diameter to be entered and then calculated within this
-% function)
-if nargin == 3
-    roughness = varargin{2} / varargin{3};
-elseif nargin == 2
-    roughness = varargin{2};
+%   Overloaded function signature (allows for pre-calculated roughness or
+%   Epsilon and Diameter to be entered and then calculated within this
+%   function)
+    if nargin == 3
+        roughness = varargin{2} / varargin{3};
+    elseif nargin == 2
+        roughness = varargin{2};
+    end
+
+    lhs = @(x) 1./(sqrt(x));
+    rhs = @(x) -2.0 .* log((roughness ./ 3.7) + (2.51 ./ (Re .* (sqrt(x)))));
+
+    friction = @(f) abs(lhs(f)) - abs(rhs(f)) ;
+
+
+%   THIS NEEDS TO BE DONE MANUALLY WITH NEWTON-RHAPSON OR BISECTIONAL
+    f = fzero(friction, 1E-2);
+
+
 end
-
-lhs = @(x) 1./(sqrt(x));
-rhs = @(x) -2.0 .* log((roughness ./ 3.7) + (2.51 ./ (Re .* (sqrt(x)))));
-
-friction = @(f) lhs(f) - rhs(f) ;
-
-f = fzero(friction, 1E-2);
-
-end
-

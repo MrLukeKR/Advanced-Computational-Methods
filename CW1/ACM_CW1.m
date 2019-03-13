@@ -11,7 +11,7 @@
 % -- ORIGINAL INPUT VALUES --
     barrelsPerDay = 2000;
     inchesDiameter = 4;
-    roughness = 0;
+    rough = 0;
 % ---------------------------
 
 % -- CONVERSIONS --
@@ -35,10 +35,11 @@
     Re = Reynolds(gallonFlowPerSecond, metersDiameter, dens, visc);
 
 % Run the built-in solver to compare our answer to
-    matAns = vpasolve(1/sqrt(f) == -2.0 * log((roughness / 3.7) + (2.51 / (Re * sqrt(f)))), f);
+    matAns = vpasolve(...
+       1/sqrt(f) == -2.0 * log((rough / 3.7) + (2.51 / (Re * sqrt(f)))),f);
 
 % Print both answers as a comparison
-    fprintf('MANUAL Answer\t%f\n', FrictionFactor(Re, roughness));
+    fprintf('MANUAL Answer\t%f\n', FrictionFactor(Re, rough));
     fprintf('MATLAB Answer\t%f\n', matAns);
 
 % \/\/\/ Question (b) \/\/\/
@@ -49,32 +50,32 @@
     ReStep  = 500;
     Re = ReStart : ReStep : ReEnd;
 
-    roughnessStart = 0;
-    roughnessEnd = 0.008;
-    roughnessStep = 0.002;
-    roughness = roughnessStart : roughnessStep : roughnessEnd;
+    roughStart = 0;
+    roughEnd = 0.008;
+    roughStep = 0.002;
+    rough = roughStart : roughStep : roughEnd;
 
     ySize = (ReEnd - ReStart + ReStep) / ReStep;
-    xSize = (roughnessEnd - roughnessStart + roughnessStep) / roughnessStep;
+    xSize = (roughEnd - roughStart + roughStep) / roughStep;
 % -----------------------------------------
 
 
 % -- COMPUTE FRICTION VALUES --
-    % FricVals contains all computed friction values for each roughness
-    fricVals = zeros(ySize, xSize);
+%   Fricts contains all computed friction values for each roughness
+    fricts = zeros(ySize, xSize);
 
-    for roughInd = 1 : xSize
+    for roInd = 1 : xSize
         for ReInd = 1 : ySize
-            fricVals(ReInd, roughInd) = FrictionFactor(Re(ReInd), roughness(roughInd));
+            fricts(ReInd, roInd) = FrictionFactor(Re(ReInd), rough(roInd));
         end
     end
 % -----------------------------
    
 % -- PLOT FRICTION PROFILES --
     figure('name', 'Friction Factor vs. Reynolds Number');
-    leg = cellstr(num2str(roughness', '%.3f'));
+    leg = cellstr(num2str(rough', '%.3f'));
 
-    plot (Re, fricVals);
+    plot (Re, fricts);
     roughLeg = legend(leg);
     title(roughLeg, 'Roughness');
 
@@ -86,21 +87,21 @@
 % \/\/\/ Question (c) \/\/\/
 
 % -- DEFINE VARIABLES --
-    % steps: Number of divisions to make when using linspace (default: 100)
+%   steps: Number of divisions to make when using linspace (default: 100)
     steps = 100;
 
-    % R: radius of pipe
+%   R: radius of pipe
     R = metersDiameter / 2;
 
-    % r: distance from center of pipe
+%   r: distance from center of pipe
     r = linspace(0, R, steps);
 
-    % theta: angle of volume
+%   theta: angle of volume
     theta = linspace(0, 2 * pi, steps);
 
-    % d: diameter
+%   d: diameter
     
-    % u_Avg: average velocity (Q/A)
+%   u_Avg: average velocity (Q/A)
     A = pi * R^2;
     u_Avg = gallonFlowPerSecond / A;
 
@@ -115,16 +116,16 @@
     
     
     
-    % THIS NEEDS TO BE MADE MANUALLY:
+%   THIS NEEDS TO BE MADE MANUALLY:
     integ1 = trapz(theta, trapz(r, functionToIntegrate, 2));
 
     
     
     
-    % u_Max: maximum velocity at center of pipe
+%   u_Max: maximum velocity at center of pipe
     u_Max = (u_Avg * pi * R.^2) ./ integ1;
 
-    % u(r): 
+%   u(r): 
     u_r = u_Max .* (1 - (r./R).^2);
 
 % -- PLOT LAMINAR FLOW PROFILE --
