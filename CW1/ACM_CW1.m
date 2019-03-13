@@ -1,18 +1,20 @@
-% Question (a)
+% -- PRELIMINARY SETUP --
+    clearvars; % Do not use clear all, it's inefficient -> clear variables
+    clc;
 
-% Do not use clear all, it's inefficienct, just clear variables
-clearvars;
-clc;
+    format long;
+    syms f
+% -----------------------
 
-format long;
-syms f;
+% \/\/\/ Question (a) \/\/\/
 
-% --- ORIGINAL INPUT VALUES ---
+% -- ORIGINAL INPUT VALUES --
     barrelsPerDay = 2000;
+    inchesDiameter = 4;
+    roughness = 0;
+% ---------------------------
 
-% -----------------------------
-
-% --- CONVERSIONS ---
+% -- CONVERSIONS --
 %  2000 bbl/day -> bbl/second (Oil Barrel)
     volFlowPerSecond = valuePerDayToSeconds(barrelsPerDay);
 
@@ -20,111 +22,129 @@ syms f;
     gallonFlowPerSecond = barrelToGallon(volFlowPerSecond);
 
 %  in -> m
-    indiam  = inchesToMeters(4);
+    metersDiameter  = inchToMetre(inchesDiameter);
 
 %  g/cm3 -> kg/m3
     dens    = 0.9 * 1000;
 
 %  8cp -> Pa.s (Centipoise to Pascal Second)
     visc    = 8 * 0.001;
-% -------------------
+% -----------------
 
-roughness = 0;
+% Calculate the Reynolds (Re) number
+    Re = Reynolds(gallonFlowPerSecond, metersDiameter, dens, visc);
 
-Re = Reynolds(gallonFlowPerSecond, indiam, dens, visc);
+% Run the built-in solver to compare our answer to
+    matAns = vpasolve(1/sqrt(f) == -2.0 * log((roughness / 3.7) + (2.51 / (Re * sqrt(f)))), f);
 
-matAns = vpasolve(1/sqrt(f) == -2.0 * log((roughness / 3.7) + (2.51 / (Re * sqrt(f)))), f);
-fprintf('CUSTOM Answer\t%f\n', FrictionFactor(Re, roughness));
-fprintf('MATLAB Answer\t%f\n', matAns);
+% Print both answers as a comparison
+    fprintf('MANUAL Answer\t%f\n', FrictionFactor(Re, roughness));
+    fprintf('MATLAB Answer\t%f\n', matAns);
 
-% Question (b)
-ReStart = 5000;
-ReEnd   = 100000;
-ReStep  = 500;
+% \/\/\/ Question (b) \/\/\/
 
-roughnessStart = 0;
-roughnessEnd = 0.008;
-roughnessStep = 0.002;
+% -- Integration Bound and Step settings --
+    ReStart = 5000;
+    ReEnd   = 100000;
+    ReStep  = 500;
+    Re = ReStart : ReStep : ReEnd;
 
-ySize = (ReEnd - ReStart) / ReStep;
-xSize = (roughnessEnd - roughnessStart) / roughnessStep;
+    roughnessStart = 0;
+    roughnessEnd = 0.008;
+    roughnessStep = 0.002;
+    roughness = roughnessStart : roughnessStep : roughnessEnd;
 
-% valuesToPlot = ([Re, roughness] <- Friction Factor)
-valuesToPlot = zeros(ySize, xSize);
+    ySize = (ReEnd - ReStart + ReStep) / ReStep;
+    xSize = (roughnessEnd - roughnessStart + roughnessStep) / roughnessStep;
+% -----------------------------------------
 
-yInd = 1;
-for roughness = roughnessStart : roughnessStep : roughnessEnd
-    xInd = 1;
-    for Re = ReStart : ReStep : ReEnd
-        %fric = vpasolve(1/sqrt(f) == -2.0 * log((roughness / 3.7) + (2.51 / (Re * sqrt(f)))), f);
-        fric  = FrictionFactor(Re, roughness);
-        %fprintf('My Fact: %f\tMATLAB: %f\n', myfric, matfric);
-        valuesToPlot(xInd, yInd) = fric;
-        xInd = xInd + 1;
+
+% -- COMPUTE FRICTION VALUES --
+    % FricVals contains all computed friction values for each roughness
+    fricVals = zeros(ySize, xSize);
+
+    for roughInd = 1 : xSize
+        for ReInd = 1 : ySize
+            fricVals(ReInd, roughInd) = FrictionFactor(Re(ReInd), roughness(roughInd));
+        end
     end
-    yInd = yInd + 1;
-end
+% -----------------------------
+   
+% -- PLOT FRICTION PROFILES --
+    figure('name', 'Friction Factor vs. Reynolds Number');
+    leg = cellstr(num2str(roughness', '%.3f'));
 
-figure('name', 'Friction Factor vs. Reynolds Number');
+    plot (Re, fricVals);
+    roughLeg = legend(leg);
+    title(roughLeg, 'Roughness');
 
-roughnessLabels = roughnessStart : roughnessStep : roughnessEnd;
-leg = cellstr(num2str(roughnessLabels', 'Roughness = %.3f'));
+    title('Friction Factor vs. Reynolds Number');
+    xlabel('Reynolds Number [Re]');
+    ylabel('Friction Factor [f]');
+% ----------------------------
 
-plot (ReStart : ReStep : ReEnd, valuesToPlot);
-legend(leg);
-title('Friction Factor vs. Reynolds Number');
-xlabel('Reynolds Number (Re)');
-ylabel('Friction Factor (f)');
+% \/\/\/ Question (c) \/\/\/
 
-%----- Question (c) -----
+% -- DEFINE VARIABLES --
+    % steps: Number of divisions to make when using linspace (default: 100)
+    steps = 100;
 
-% steps: Number of divisions to make when using linspace (default: 100)
-steps = 100;
+    % R: radius of pipe
+    R = metersDiameter / 2;
 
-% R: radius of pipe
-R = indiam / 2;
+    % r: distance from center of pipe
+    r = linspace(0, R, steps);
 
-% r: distance from center of pipe
-r = linspace(0, R, steps);
+    % theta: angle of volume
+    theta = linspace(0, 2 * pi, steps);
 
-% theta: angle of volume
-theta = linspace(0, 2 * pi, steps);
-
-% d: diameter
-% u_Avg: average velocity (Q/A)
-A = pi * R^2;
-u_Avg = gallonFlowPerSecond / A;
+    % d: diameter
+    
+    % u_Avg: average velocity (Q/A)
+    A = pi * R^2;
+    u_Avg = gallonFlowPerSecond / A;
 
 % Multiple integration using TRAPZ
 % Based on MathWorks documentation from: 
 % https://uk.mathworks.com/help/matlab/ref/trapz.html
 
-[RAD] = meshgrid(r, theta);
+    [RAD] = meshgrid(r, theta);
+    
+    functionToIntegrate = ((1 - (RAD./R).^2) .* RAD);
 
-manualFunc = ((1 - (RAD./R).^2) .* RAD);
+    
+    
+    
+    % THIS NEEDS TO BE MADE MANUALLY:
+    integ1 = trapz(theta, trapz(r, functionToIntegrate, 2));
 
-integ1 = trapz(theta, trapz(r, manualFunc, 2));
+    
+    
+    
+    % u_Max: maximum velocity at center of pipe
+    u_Max = (u_Avg * pi * R.^2) ./ integ1;
 
-% u_Max: maximum velocity at center of pipe
-u_Max = (u_Avg * pi * R.^2) ./ integ1;
+    % u(r): 
+    u_r = u_Max .* (1 - (r./R).^2);
 
-% u(r): 
-u_r = u_Max .* (1 - (r./R).^2);
-plot(r, u_r);
-
-% MATLAB built-in function for comparison
-builtInFunc = @(r, theta)((1 - (r./R).^2) .* r);
-inter2 = integral2(builtInFunc, 0, 2 * pi, 0, R);
+% -- PLOT LAMINAR FLOW PROFILE --
+    figure('name', '(Incompressible) Laminar Flow Velocity Profile');
+    plot(r, u_r);
+    title('(Incompressible) Laminar Flow Velocity Profile');
+    xlabel('Distance to Center of Pipe [r]');
+    ylabel('Velocity Profile [u(r)]');
+% -------------------------------
 
 % --- CONVERSION FUNCTIONS ---
-function perSecond = valuePerDayToSeconds(perDayValue)
-    perSecond = perDayValue / (24 * 60 * 60);
-end
+    function perSecond = valuePerDayToSeconds(perDayValue)
+        perSecond = perDayValue / (24 * 60 * 60);
+    end
 
-function gallons = barrelToGallon(barrels)
-    gallons = barrels * 42 * 3.785E-3;
-end
+    function gallons = barrelToGallon(barrels)
+        gallons = barrels * 42 * 3.785E-3;
+    end
 
-function meters = inchesToMetres(inches)
-    meters = inches * 0.0254;
-end
+    function meters = inchToMetre(inches)
+        meters = inches * 0.0254;
+    end
+% ----------------------------
