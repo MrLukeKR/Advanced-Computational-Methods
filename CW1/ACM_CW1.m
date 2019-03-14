@@ -111,16 +111,16 @@
 
     [RAD] = meshgrid(r, theta);
     
-    functionToIntegrate = ((1 - (RAD./R).^2) .* RAD);
-
+    syms rad thet
     
-    
+    trapt1 = trapz(r, ((1 - (RAD./R).^2) .* RAD), 2)
+    halfTrap = Trapezoid(@(rad)((1 - (rad./R).^2) .* rad), 0, R, steps)
     
 %   THIS NEEDS TO BE MADE MANUALLY:
-    integ1 = trapz(theta, trapz(r, functionToIntegrate, 2));
-
+    integ1 = trapz(theta, trapz(r, ((1 - (RAD./R).^2) .* RAD), 2));
+    trap2 = integ1;
     
-    
+    integ1 = Trapezoid(@(thet)(Trapezoid(@(rad)((1 - (rad./R).^2) .* rad), 0, R, steps), 0, 2 * pi, steps);
     
 %   u_Max: maximum velocity at center of pipe
     u_Max = (u_Avg * pi * R.^2) ./ integ1;
