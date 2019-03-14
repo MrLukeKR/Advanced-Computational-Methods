@@ -89,17 +89,13 @@
 % -- DEFINE VARIABLES --
 %   steps: Number of divisions to make when using linspace (default: 100)
     steps = 100;
-
+    
+%   d (metersDiameter): diameter 
 %   R: radius of pipe
     R = metersDiameter / 2;
-
-%   r: distance from center of pipe
+    
+    %   r: distance to centre of pipe
     r = linspace(0, R, steps);
-
-%   theta: angle of volume
-    theta = linspace(0, 2 * pi, steps);
-
-%   d: diameter
     
 %   u_Avg: average velocity (Q/A)
     A = pi * R^2;

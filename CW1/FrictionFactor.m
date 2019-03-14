@@ -26,13 +26,15 @@ function f = FrictionFactor(varargin)
     end
 
     lhs = @(x) 1./(sqrt(x));
-    rhs = @(x) -2.0 .* log((roughness ./ 3.7) + (2.51 ./ (Re .* (sqrt(x)))));
+    rhs = @(x) -2.0 * log((roughness ./ 3.7) + (2.51 ./ (Re .* (sqrt(x)))));
 
     friction = @(f) abs(lhs(f)) - abs(rhs(f)) ;
 
-
-%   THIS NEEDS TO BE DONE MANUALLY WITH NEWTON-RHAPSON OR BISECTIONAL
-    f = fzero(friction, 1E-2);
+    errTol = 1E-3;
+    
+    fprintf("MATLAB answer: %f\r", fzero(friction, errTol));
+    f = Bisectional(friction, 1E-5, 1, errTol);
+    fprintf("BISECT answer: %f\r", f);
 
 
 end
