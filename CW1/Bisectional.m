@@ -2,6 +2,11 @@ function [output] = Bisectional(functionPtr, lowBound, upBound, errTol)
 %BISECTIONAL Summary of this function goes here
 %   Detailed explanation goes here
 
+%   Set zero values to close-to-zero to fix NaN/Inf errors
+    if lowBound == 0
+       lowBound = 1E-10; 
+    end
+
     fLow = functionPtr(lowBound);
     fUp = functionPtr(upBound);
 

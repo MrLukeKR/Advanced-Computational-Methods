@@ -105,10 +105,16 @@
     syms x y
     firstIntegration = Trapezoid(@(x)((1 - (x./R).^2) .* x), 0, R, steps);
     secondIntegration = Trapezoid(@(y)(firstIntegration .* y ./ pi), 0, 2 * pi, steps);
+    
+    theta = linspace(0, 2 * pi, steps);
+    [X] = meshgrid(r, theta);
+    matFunc = (1 - (X./R).^2) .* X;
+    fprintf("MATLAB answer: %f\r", trapz(theta, trapz(r, matFunc, 2)));
+    fprintf("CUSTOM answer: %f\r", secondIntegration);
 % ------------------------
 
 %   u_Max: maximum velocity at center of pipe
-    u_Max = (u_Avg * pi * R.^2) ./ secondIntegration;
+    u_Max = (u_Avg * pi * R.^2) ./ secondIntegration
 
 %   u(r): 
     u_r = u_Max .* (1 - (r./R).^2);
@@ -117,8 +123,8 @@
     figure('name', '(Incompressible) Laminar Flow Velocity Profile');
     plot(r, u_r);
     title('(Incompressible) Laminar Flow Velocity Profile');
-    xlabel('Distance to Center of Pipe [r]');
-    ylabel('Velocity Profile [u(r)]');
+    xlabel('Distance to Center of Pipe (m)');
+    ylabel('Velocity Profile (m/s)');
 % -------------------------------
 
 % --- CONVERSION FUNCTIONS ---

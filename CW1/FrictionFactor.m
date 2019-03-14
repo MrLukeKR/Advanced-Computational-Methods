@@ -33,7 +33,7 @@ function f = FrictionFactor(varargin)
     errTol = 1E-3;
     
     fprintf("MATLAB answer: %f\r", fzero(friction, errTol));
-    f = Bisectional(friction, 1E-5, 1, errTol);
+    f = Bisectional(friction, 0, 1, errTol);
     fprintf("BISECT answer: %f\r", f);
 
 
