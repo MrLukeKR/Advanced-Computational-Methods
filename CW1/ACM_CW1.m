@@ -105,25 +105,14 @@
     A = pi * R^2;
     u_Avg = gallonFlowPerSecond / A;
 
-% Multiple integration using TRAPZ
-% Based on MathWorks documentation from: 
-% https://uk.mathworks.com/help/matlab/ref/trapz.html
+% -- DOUBLE INTEGRATION --
+    syms x y
+    firstIntegration = Trapezoid(@(x)((1 - (x./R).^2) .* x), 0, R, steps);
+    secondIntegration = Trapezoid(@(y)(firstIntegration .* y ./ pi), 0, 2 * pi, steps);
+% ------------------------
 
-    [RAD] = meshgrid(r, theta);
-    
-    syms rad thet
-    
-    trapt1 = trapz(r, ((1 - (RAD./R).^2) .* RAD), 2)
-    halfTrap = Trapezoid(@(rad)((1 - (rad./R).^2) .* rad), 0, R, steps)
-    
-%   THIS NEEDS TO BE MADE MANUALLY:
-    integ1 = trapz(theta, trapz(r, ((1 - (RAD./R).^2) .* RAD), 2));
-    trap2 = integ1;
-    
-    integ1 = Trapezoid(@(thet)(Trapezoid(@(rad)((1 - (rad./R).^2) .* rad), 0, R, steps), 0, 2 * pi, steps);
-    
 %   u_Max: maximum velocity at center of pipe
-    u_Max = (u_Avg * pi * R.^2) ./ integ1;
+    u_Max = (u_Avg * pi * R.^2) ./ secondIntegration;
 
 %   u(r): 
     u_r = u_Max .* (1 - (r./R).^2);
