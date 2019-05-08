@@ -39,7 +39,7 @@
        1/sqrt(f) == -2.0 * log((rough / 3.7) + (2.51 / (Re * sqrt(f)))),f);
 
 % Print both answers as a comparison
-    fprintf('MANUAL Answer\t%f\n', FrictionFactor(Re, rough));
+        fprintf('MANUAL Answer\t%f\n', FrictionFactor(Re, rough));
     fprintf('MATLAB Answer\t%f\n', matAns);
 
 % \/\/\/ Question (b) \/\/\/

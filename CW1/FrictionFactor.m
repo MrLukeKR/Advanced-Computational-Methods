@@ -28,13 +28,7 @@ function f = FrictionFactor(varargin)
     lhs = @(x) 1./(sqrt(x));
     rhs = @(x) -2.0 * log((roughness ./ 3.7) + (2.51 ./ (Re .* (sqrt(x)))));
 
-    friction = @(f) abs(lhs(f)) - abs(rhs(f)) ;
-
-    errTol = 1E-3;
-    
-    fprintf("MATLAB answer: %f\r", fzero(friction, errTol));
-    f = Bisectional(friction, 0, 1, errTol);
+%   Use bisectional method to solve function with a tolerance of 1E-5
+    f = Bisectional(@(f)(abs(lhs(f)) - abs(rhs(f))), 0, 1, 1E-5);
     fprintf("BISECT answer: %f\r", f);
-
-
 end

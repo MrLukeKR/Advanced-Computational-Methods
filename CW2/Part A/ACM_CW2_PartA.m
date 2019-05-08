@@ -18,7 +18,7 @@
     Kc_final        = 5;
     
     t_initial       = 0;
-    t_step          = 0.01;
+    t_step          = 0.001;
     t_final         = 45;
     
     delta_h_initial = 0; % Initial value
@@ -28,11 +28,13 @@
 % -----------------------
 
 % \/\/\/ Question (a) \/\/\/
-    %  [t, out] = ode45(@ODEFunc, [t_initial, t_final], delta_h);
-    %plot(t, out(:,1));
+ figure();
+ hold on;
+ [t, out] = ode45(@ODEFunc2, [t_initial, t_final], delta_h);
+ plot(t, out(:,1));
     
-    %[t, out] = EulerMethod(@ODEFunc, t_initial, t_step, t_final, delta_h_initial, delta_h_over_t, Kc_initial);
-   % plot(t, out);
+ [t, out] = EulerMethod(@ODEFunc, t_initial, t_step, t_final, delta_h_initial, delta_h_over_t, Kc_initial);
+ plot(t, out);
     
 % \/\/\/ Question (b) \/\/\/
 
@@ -45,6 +47,17 @@
         xlabel('Time (s)'); 
         ylabel('Error (\Deltah)'); 
     end
+    
+function output = ODEFunc2(time, delta_h)
+Kc=1;
+    A = 2;
+    tau = 0.1;
+    
+    ode1 = -(Kc * delta_h(2)) / A;
+    ode2 = (Kc / tau / A) * delta_h(1);
+    
+    output = [delta_h(2) ;ode1 - ode2];
+end
     
 function output = ODEFunc(delta_h, delta_h_over_t, Kc)
     A = 2;
