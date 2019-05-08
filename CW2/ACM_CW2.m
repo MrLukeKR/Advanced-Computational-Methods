@@ -18,39 +18,40 @@
     Kc_final        = 5;
     
     t_initial       = 0;
-    t_step          = 1;
-    t_final         = 60; % 1 minute
+    t_step          = 0.01;
+    t_final         = 45;
     
-    delta_h_initial = 0;
+    delta_h_initial = 0; % Initial value
     delta_h_over_t  = 2;
-    delta_h         = [delta_h_initial, delta_h_over_t];
-    
-    % 2nd Order ODE
-    % A * (deltah^2 / t^2) + (Kc * deltah_over_t) + ((Kc / tau1) * deltah);
-    %
-    % -> Convert to 2 1st Order ODEs
+    delta_h = [delta_h_initial, delta_h_over_t];
 
-    [var1, var2] = ode45(@ODEFunc, [t_initial t_final], delta_h);
-    
-    plot(var1, var2(:,1));
-    
-    for Kc = Kc_initial : Kc_step : Kc_final
-       for t = t_initial : t_step : t_final
-
-       end
-    end
 % -----------------------
 
 % \/\/\/ Question (a) \/\/\/
-
+    %  [t, out] = ode45(@ODEFunc, [t_initial, t_final], delta_h);
+    %plot(t, out(:,1));
+    
+    %[t, out] = EulerMethod(@ODEFunc, t_initial, t_step, t_final, delta_h_initial, delta_h_over_t, Kc_initial);
+   % plot(t, out);
+    
 % \/\/\/ Question (b) \/\/\/
 
-function yprime = ODEFunc(t, delta_h, Kc)
-    Kc = 1;
+    for Kc = Kc_initial : Kc_step : Kc_final
+        [t, out] = EulerMethod(@ODEFunc, t_initial, t_step, t_final, delta_h_initial, delta_h_over_t, Kc);
+        
+        figure();
+        plot(t, out);
+        title(sprintf('Kc = %d', Kc));
+        xlabel('Time (s)'); 
+        ylabel('Error (\Deltah)'); 
+    end
+    
+function output = ODEFunc(delta_h, delta_h_over_t, Kc)
     A = 2;
     tau = 0.1;
     
-    ode1 = -(Kc/A) * delta_h(2);
-    ode2 = (Kc / tau / A) * delta_h(1);
-    yprime = [delta_h(2); ode1 - ode2];
+    ode1 = -(Kc * delta_h_over_t) / A;
+    ode2 = (Kc / tau / A) * delta_h;
+    
+    output = ode1 - ode2;
 end
