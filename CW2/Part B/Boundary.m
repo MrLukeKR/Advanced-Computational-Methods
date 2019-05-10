@@ -15,22 +15,24 @@
         v = 1;
         
         % c_t -> t = 0 (c_0)
-        c_0 = 1;
+        x_0 = 1;
 
         for t = 1 : length(tVals)
-            c(1, t) = c_0;    
+            c(1, t) = x_0;    
         end
-        
+       
         for t = 1 : length(tVals)-1
             for x = 2 : length(xVals)-1
-                advection =  (2 * (x_step ^ 2) * ((c(x, t + 1) - c(x, t))) / t_step);
-                diffusion = 2 * D * c(x-1, t) - c(x,t) * (2*D - v * x_step);
-                c(x, t+1) = (advection + diffusion) / (v * x_step - 2 * D);
+                upperTerm1 =  ((2 * (x ^2) * ((c(x, t + 1) - c(x, t)))) / t_step);
+                upperTerm2 = c(x-1, t) * (v * xVals(x) + 2 * D) + (2 * D * c(x, t));
+                c(x+1, t) = ((-upperTerm1 + upperTerm2) / (2 * D - v * xVals(x)));
             end
         end
     
+        figure();
+        hold on
         for t = 1 : length(tVals)
-            figure();
+           
             plot(xVals, c(:, t));
             title(sprintf('Contaminant Boundary (t = %f)', tVals(t)));
             xlabel('Domain Point'); 

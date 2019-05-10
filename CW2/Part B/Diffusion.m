@@ -12,12 +12,7 @@
         
         c = zeros(length(xVals), length(tVals));
         D = 1;
-        
-        dxdt = x_step / t_step;
-                
-        delta_D = -D * dxdt;
-        delta_x = x_step *2;
-        
+
         % c_t -> t = 0 (c_0)
         for x = 1 : length(xVals)
             c(x, 1) = 0.75 * exp(-((xVals(x) - 0.5)/0.1)^2);
@@ -26,22 +21,24 @@
         
         for t = 1 : length(tVals)-1
             for x = 2 : length(xVals)-1
-                c(x, t+1) = (delta_D * ((c(x + 1, t) - (2 * c(x, t)) + c(x - 1, t)) / delta_x)) + c(x, t);
+                dt_x = D * (t_step / (xVals(x)^2));
+                c(x, t+1) = c(x, t) + (dt_x * (c(x + 1, t) - (2 * c(x, t)) + c(x - 1, t)));
             end
         end
         
         figure();        
-        title('Contaminant Diffusion');
+        
+        title('Contaminant Diffusion');        
+        xlabel('Domain Point'); 
+        ylabel('Concentration');
+        
         hold on;
         
         for t = 1 : length(tVals)
             plot(xVals, c(:, t));
-
-            xlabel('Domain Point'); 
-            ylabel('Concentration'); 
         end
         
         legend(cellstr(num2str(tVals', 't = %f')));
-        
+
         hold off;
   end
