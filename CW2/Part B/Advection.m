@@ -12,23 +12,38 @@
         
         c = zeros(length(xVals), length(tVals));
         v = 1;
+                        
+        dxdt = x_step / t_step;
+        delta_v   = -v * dxdt;
         
         % c_t -> t = 0 (c_0)
+        
+        % Initial condition
         for x = 1 : length(xVals)
-            c(x, 1) = 0.75 * exp(-((xVals(x) - 0.5)/0.1)^2);
+            c_0 = 0.75 * exp(-((xVals(x) - 0.5)/0.1)^2);
+            c(x, 1) = c_0;
         end
         
+
+        
         for t = 1 : length(tVals)-1
-            for x = 1 : length(xVals)-1
-                c(x, t+1) = v * t_step * ((c(x + 1, t) - c(x, t)) / (x_step * 2)) + c(x, t);
+            for x = 2 : length(xVals)-1
+                c(x, t+1) = delta_v * ((c(x + 1, t) - c(x, t)) / x_step) + c(x, t);
             end
         end
-    
+        
+        figure();        
+        title('Contaminant Advection');
+        hold on;
+        
         for t = 1 : length(tVals)
-            figure();
             plot(xVals, c(:, t));
-            title(sprintf('Contaminant Advection (t = %f)', tVals(t)));
+
             xlabel('Domain Point'); 
             ylabel('Concentration'); 
         end
+
+        legend(cellstr(num2str(tVals', 't = %f')));
+        
+        hold off;
     end

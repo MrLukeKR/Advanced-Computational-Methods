@@ -10,7 +10,7 @@
     % v     = velocity
     % D     = diffusivity (diffusion coefficient)
 
-    %Advection();
-    %Diffusion();
-    %DiffusionAndAdvection();
-    Boundary();
+    Advection();
+    Diffusion();
+    DiffusionAndAdvection();
+    %Boundary();

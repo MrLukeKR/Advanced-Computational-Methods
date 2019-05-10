@@ -14,6 +14,8 @@
         D = 1;
         v = 1;
         
+        dxdt = x_step / t_step;
+        
         % c_t -> t = 0 (c_0)
         for x = 1 : length(xVals)
             c(x, 1) = 0.75 * exp(-((xVals(x) - 0.5)/0.1)^2);
@@ -21,17 +23,22 @@
         
         for t = 1 : length(tVals)-1
             for x = 2 : length(xVals)-1
-                advection =  v * ((c(x + 1, t) - c(x, t))                 / (x_step * 2));
-                diffusion = -D * ((c(x + 1, t) - (2*c(x, t)) + c(x-1, t)) / (x_step ^ 2));
-                c(x, t+1) = t_step * (advection + diffusion) + c(x, t);
+                advection =  v * ((c(x + 1, t) -      c(x, t))              / x_step);
+                diffusion = -D * ((c(x + 1, t) - (2 * c(x, t)) + c(x-1, t)) / x_step * 2);
+                c(x, t+1) = dxdt * (advection + diffusion)   + c(x,   t);
             end
         end
     
+        figure();        
+        title('Contaminant Advection and Diffusion');
+        hold on;
+        
         for t = 1 : length(tVals)
-            figure();
             plot(xVals, c(:, t));
-            title(sprintf('Contaminant Diffusion and Advection (t = %f)', tVals(t)));
+
             xlabel('Domain Point'); 
             ylabel('Concentration'); 
         end
+        
+        hold off;
     end

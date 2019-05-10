@@ -15,10 +15,10 @@
         v = 1;
         
         % c_t -> t = 0 (c_0)
-        
+        c_0 = 1;
 
         for t = 1 : length(tVals)
-            c(1, t) = 1;    
+            c(1, t) = c_0;    
         end
         
         for t = 1 : length(tVals)-1
