@@ -1,16 +1,21 @@
     function DiffusionAndAdvection()  
-        x_start = 0;
-        x_step  = 0.01; % delta x
-        x_end   = 2;
+    % -- PRELIMINARY SETUP --
+        x_start = 0;    % Lower bound of x
+        x_step  = 0.01; % Delta x
+        x_end   = 2;    % Upper bound of x
     
-        t_start = 0;
-        t_step = 0.5; % delta t
-        t_end = 1;
+        t_start = 0;    % Lower bound of t
+        t_step = 0.5;   % Delta t
+        t_end = 1;      % Upper bound of t
         
+        % Create arrays of x and t values
         xVals = x_start : x_step : x_end;
         tVals = t_start : t_step : t_end;
         
+        % Pre-allocating 2D x-by-t matrix in memory
         c = zeros(length(xVals), length(tVals));
+        
+        % Constant D and v values
         D = 1;
         v = 1;
         
@@ -18,6 +23,8 @@
         for x = 1 : length(xVals)
             c(x, 1) = 0.75 * exp(-((xVals(x) - 0.5)/0.1)^2);
         end
+        
+        % -----------------------
         
         for t = 1 : length(tVals)-1
             for x = 2 : length(xVals)-1

@@ -1,4 +1,5 @@
- function Advection()  
+function Advection()  
+% -- PRELIMINARY SETUP --
         x_start = 0;
         x_step  = 0.005; % delta x
         x_end   = 2;
@@ -19,7 +20,9 @@
         for x = 1 : length(xVals)
             c(x, 1) = 0.75 * exp(-((xVals(x) - 0.5)/0.1)^2);
         end
-           
+
+% ------------------------
+
         for t = 1 : length(tVals)-1
             % Wrap back around
             dt_x = v * (t_step / xVals(1));
