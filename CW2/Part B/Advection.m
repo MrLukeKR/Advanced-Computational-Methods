@@ -20,21 +20,30 @@ function Advection()
         for x = 1 : length(xVals)
             c(x, 1) = 0.75 * exp(-((xVals(x) - 0.5)/0.1)^2);
         end
-
 % ------------------------
 
+        % Loop through all t (time) values
         for t = 1 : length(tVals)-1
-            % Wrap back around
-            dt_x = v * (t_step / xVals(1));
-            c(1, t+1) = c(1, t) - dt_x * (c(1,t) - c(length(xVals), t));
-            
+            % Loop through all x (domain) values
             for x = 2 : length(xVals)
+                % Calculate delta t over x * velocity values
                 dt_x = v * (t_step / xVals(x));
 
+                % Calculate the contamination value at the current position,
+                % at the next time step
                 c(x, t+1) = c(x, t) - dt_x * (c(x, t) - c(x-1, t));     
             end
+            
+            % Wrap back around to allow for matrix edges to be calculated
+            dt_x = v * (t_step / xVals(1));
+            c(1, t+1) = c(1, t) - dt_x * (c(1,t) - c(length(xVals), t));
         end
-        
+
+        % Plot results from previous calculations
+        plotResults(c, xVals, tVals);
+end
+
+    function plotResults(c, xVals, tVals)
         figure();        
         
         title('Contaminant Advection');

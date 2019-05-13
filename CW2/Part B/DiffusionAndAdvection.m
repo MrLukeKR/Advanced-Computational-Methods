@@ -26,28 +26,50 @@
         
         % -----------------------
         
+        % Loop through all t (time) values
         for t = 1 : length(tVals)-1
+                        % Wrap back around to allow for matrix edges to be calculated
+            Adv_dt_x = v * (t_step / xVals(1));
+            Dif_dt_x = D * (t_step / (xVals(1)^2));
+            
+            advection =  Adv_dt_x * ((c(2, t) - c(1, t)));
+            diffusion =  Dif_dt_x * (((c(2, t) - (2 * c(1, t)) + c(length(xVals), t))));
+            c(1, t+1) = c(1, t) + (diffusion - advection);
+            
+            % Loop through all x (domain) values            
             for x = 2 : length(xVals)-1
+                % Calculate delta t over x * velocity values
                 Adv_dt_x = v * (t_step / xVals(x));
+                % Calculate delta t over x * diffusion values
                 Dif_dt_x = D * (t_step / (xVals(x)^2));
                 
+                % Calculate the contamination value at the current position,
+                % at the next time step
                 advection =  Adv_dt_x * ((c(x+1, t) - c(x, t)));
                 diffusion =  Dif_dt_x * (((c(x+1, t) - (2 * c(x, t)) + c(x - 1, t))));
                 c(x, t+1) = c(x, t) + (diffusion - advection);
             end
+            
+
         end
     
+        % Plot results from previous calculations
+        plotResults(c, xVals, tVals);
+end
+
+    function plotResults(c, xVals, tVals)
         figure();        
-        title('Contaminant Advection and Diffusion');
+        
+        title('Contaminant Advection');
         xlabel('Domain Point'); 
         ylabel('Concentration'); 
-        
+
         hold on;
         
         for t = 1 : length(tVals)
             plot(xVals, c(:, t));
         end
-        
+
         legend(cellstr(num2str(tVals', 't = %f')));
         
         hold off;
