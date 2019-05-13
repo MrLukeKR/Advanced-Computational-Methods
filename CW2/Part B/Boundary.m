@@ -22,14 +22,14 @@ for t = 1 : length(tVals)
 end
 
 for x = 1 : length(xVals)-1
-    for t = 1 :length(tVals)-1
+    for t = 1 :length(tVals)
         if t == length(tVals)
             tPlus1 = 1;
         else
             tPlus1 = t + 1;
         end
     
-        c(x+1,t) = calculateThing(x, xVals, t, D, v, tPlus1, t_step, c);
+        c(x+1,t) = calculateThing(x, xVals, tVals, t, D, v, tPlus1, t_step, c);
     end
     
 end
@@ -47,22 +47,21 @@ end
 hold off;
 end
 
-function output = calculateThing(x, xVals, t, D, v, tPlus1, t_step, c)
-x_step = 0.01;
-if x > 1 && x <= length(xVals)
-    xMinus1 = x - 1;
-elseif x == 1
-    xMinus1 = length(xVals);
-end
+function output = calculateThing(x, xVals, tVals, t, D, v, tPlus1, t_step, c)
+    x_step = 0.01;
+    if x > 1 && x <= length(xVals)
+        xMinus1 = x - 1;
+    elseif x == 1
+        xMinus1 = length(xVals);
+    end
+        
+    ct = c(x,t);
 
-% c(x+1,t)= -(c(x,t) - c(x,t+1) + t_step*((c(x-1,t)*v)/(2*xVals) - (D*(2*c(x,t) - c(x-1,t)))/xVals.^2))/(t_step*(D/xVals.^2 - v/(2*xVals)))
+    ct2 = c(xMinus1, t);
+    cx = c(x, tPlus1);
 
-%upperTerm1 = -(currC - c(x, tPlus1));
-%upperTerm2 = t_step*((prevC * v)/(2*xVals(x)) - (D*(2*currC - prevC))/xVals(x)^2);
-%bottomTerm = (t_step*(D/xVals(x)^2 - v/(2*xVals(x))));
-
-%output = (upperTerm1 + upperTerm2) / bottomTerm;
-upperTerm = -(c(x,t) - c(x,t+1) + t_step*((c(xMinus1,t)*v)/(2*x_step) - (D*(2*c(x,t) - c(xMinus1,t)))/x_step^2));
-lowerTerm = (t_step*(D/x_step^2 - v/(2*x_step)));
-output = upperTerm/lowerTerm;
+    
+    %upperTerm = -(c(x,t) - c(x,t+1) + t_step*((c(xMinus1, t) * v)/(2 * x_step) - (D * (2 * c(x,t) - c(xMinus1, t))) / x_step^2));
+    %lowerTerm =  (t_step *  (D / x_step^2 - v / (2 * x_step)));
+    output = -(ct - cx + t_step*((ct2*v)/(2*x_step) - (D*(2*ct - ct2))/x_step^2))/(t_step*(D/x_step^2 - v/(2*x_step)));
 end
